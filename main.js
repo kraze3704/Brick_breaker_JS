@@ -64,14 +64,16 @@ _resetBall = () => {
 
 _paddleCollision = () => {
 
-    _ballSpeedY *= -1;
+    if(_ballSpeedY > 0) { // paddle collision will only happen when the ball is moving downwards
+        _ballSpeedY *= -1;
 
-    let _ballSpeedX_Mod = _ballX - _paddleX - (_paddleWidth/2);
+        let _ballSpeedX_Mod = _ballX - _paddleX - (_paddleWidth/2);
 
-    _ballSpeedX = _ballSpeedX_Mod/10;
+        _ballSpeedX = _ballSpeedX_Mod/10;
+    }
 }
 
-_wallCollision = () => {
+_Collision = () => {
 
     if( _ballX + _ballRadius > _CANVAS.width ) {
         _ballSpeedX *= -1;
@@ -97,7 +99,7 @@ _wallCollision = () => {
 
 _MoveAll = () => {
 
-    _wallCollision();
+    _Collision();
 
     _ballX += _ballSpeedX;
     _ballY += _ballSpeedY;
