@@ -14,7 +14,7 @@ window.onload = () => {
     _resetBall(); // places the ball at the center of canvas with speed (0,6)
 
     _paddleX = (_CANVAS.width - _paddleWidth) / 2;
-    _paddleY = _CANVAS.height - _paddleHeight;
+    _paddleY = _CANVAS.height * 0.9;
 
     _CANVAS.addEventListener('mousemove', function(evt) {
         let mousePos = calculateMousePos(evt);
@@ -62,6 +62,15 @@ _resetBall = () => {
 
 }
 
+_paddleCollision = () => {
+
+    _ballSpeedY *= -1;
+
+    let _ballSpeedX_Mod = _ballX - _paddleX - (_paddleWidth/2);
+
+    _ballSpeedX = _ballSpeedX_Mod/10;
+}
+
 _wallCollision = () => {
 
     if( _ballX + _ballRadius > _CANVAS.width ) {
@@ -70,24 +79,20 @@ _wallCollision = () => {
         _ballSpeedX *= -1;
     }  // collision check for left and right wall
 
-    if( _ballY + _ballRadius > _CANVAS.height ) {
+    if( _ballY + _ballRadius > _CANVAS.height * 0.9) {  // _ballRadius added for more accurate collision
 
         if( _ballX > _paddleX && _ballX < _paddleX + _paddleWidth) {
-            _ballSpeedY *= -1;
-
-            let _ballSpeedX_Mod = _ballX - _paddleX - (_paddleWidth/2);
-            if(_ballSpeedX == 0) {
-                _ballSpeedX += _ballSpeedX_Mod/10;
-            }else {
-                _ballSpeedX *= _ballSpeedX_Mod/10;
-            }
-        }else {
-            _resetBall();
+            _paddleCollision();
         }
+
+    } // before reaching the edge, check for paddle collision and run the code if the ball is in contact with paddle
+
+    if( _ballY > _CANVAS.height ) {
+        _resetBall();
 
     }else if( _ballY - _ballRadius < 0 ) {
         _ballSpeedY *= -1;
-    }
+    }  // ball bounces off the top of the canvas, and resets if it hits the bottom of the canvas
 }
 
 _MoveAll = () => {
