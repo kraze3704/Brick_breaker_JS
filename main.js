@@ -3,15 +3,15 @@ let _CANVAS, _CANVAS_CONTEXT;
 const _FPS = 30;
 
 let _ballX, _ballY, _ballRadius = 10;
-let _ballSpeedX, _ballSPeedY;
+let _ballSpeedX, _ballSpeedY;
 
-let _paddleX, _paddleY, _paddleHeight = 15, _paddleWidth = 200;
+let _paddleX, _paddleY, _paddleHeight = 15, _paddleWidth = 150;
 
 window.onload = () => {
     _CANVAS = document.getElementById('gameCanvas');
     _CANVAS_CONTEXT = _CANVAS.getContext('2d');
 
-    _resetBall(); // places the ball at the center of canvas with speed (6,6)
+    _resetBall(); // places the ball at the center of canvas with speed (0,6)
 
     _paddleX = (_CANVAS.width - _paddleWidth) / 2;
     _paddleY = _CANVAS.height - _paddleHeight;
@@ -57,8 +57,8 @@ _resetBall = () => {
     _ballX = _CANVAS.width / 2;
     _ballY = _CANVAS.height / 2;
 
-    _ballSpeedX = 6;
-    _ballSPeedY = 6;
+    _ballSpeedX = 0;
+    _ballSpeedY = 6;
 
 }
 
@@ -73,13 +73,20 @@ _wallCollision = () => {
     if( _ballY + _ballRadius > _CANVAS.height ) {
 
         if( _ballX > _paddleX && _ballX < _paddleX + _paddleWidth) {
-            _ballSPeedY *= -1;
+            _ballSpeedY *= -1;
+
+            let _ballSpeedX_Mod = _ballX - _paddleX - (_paddleWidth/2);
+            if(_ballSpeedX == 0) {
+                _ballSpeedX += _ballSpeedX_Mod/10;
+            }else {
+                _ballSpeedX *= _ballSpeedX_Mod/10;
+            }
         }else {
             _resetBall();
         }
 
     }else if( _ballY - _ballRadius < 0 ) {
-        _ballSPeedY *= -1;
+        _ballSpeedY *= -1;
     }
 }
 
@@ -88,7 +95,7 @@ _MoveAll = () => {
     _wallCollision();
 
     _ballX += _ballSpeedX;
-    _ballY += _ballSPeedY;
+    _ballY += _ballSpeedY;
 }
 
 _DrawAll = () => {
