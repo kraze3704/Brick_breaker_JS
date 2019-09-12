@@ -7,14 +7,16 @@ let _ballSpeedX, _ballSpeedY;
 
 let _paddleX, _paddleY, _paddleHeight = 15, _paddleWidth = 150;
 
-const BRICK_WIDTH = 80, BRICK_HEIGHT = 20, BRICK_GAP = 3, BRICK_COLS = 10, BRICK_ROWS = 3;
+const BRICK_WIDTH = 80, BRICK_HEIGHT = 20, BRICK_GAP = 2, BRICK_COLS = 10, BRICK_ROWS = 14;
 // collision width&height of the brick, visiual gap, number of columns and rows
+let BRICK_GRID = new Array(BRICK_COLS * BRICK_ROWS);
 
 window.onload = () => {
     _CANVAS = document.getElementById('gameCanvas');
     _CANVAS_CONTEXT = _CANVAS.getContext('2d');
 
     _resetBall(); // places the ball at the center of canvas with speed (0,6)
+    _ResetBricks();
 
     _paddleX = (_CANVAS.width - _paddleWidth) / 2;
     _paddleY = _CANVAS.height * 0.9;
@@ -108,14 +110,32 @@ _MoveAll = () => {
     _ballY += _ballSpeedY;
 }
 
+_ResetBricks = () => {
+    for(i=0 ; i < BRICK_COLS ; i++){
+        for(j=0 ; j < BRICK_ROWS ; j++){
+            if(Math.random() > 0.5) {
+                BRICK_GRID[BRICK_COLS*j + i] = true;
+            }else {
+                BRICK_GRID[BRICK_COLS*j + i] = false;
+            }
+            //console.log(`${i}, ${j} : ${BRICK_GRID[BRICK_COLS*j + i]}`)
+            //console.log(`BRICK_COLS*j + i = ${BRICK_COLS*j + i}`)
+        }
+    };
+    //console.dir(BRICK_GRID);
+}
+
 _DrawBricks = () => {
-    for(i=0 ; i < BRICK_COLS ; i++) {  // for each column i
-        for(j=0 ; j < BRICK_ROWS ; j++) {  // for each row j in that column i
+    for(col=0 ; col < BRICK_COLS ; col++) {  // for each column
+        for(row=0 ; row < BRICK_ROWS ; row++) {  // for each row in that column
             // calculate the coordinates where each brick will be in
-            let BrickTopLeftX = i * BRICK_WIDTH;
-            let BrickTopLeftY = j * BRICK_HEIGHT;
-            // defined constant BRICK_GAP is used to add a margin around the brick for better visibilty
-            _RectFilled(BrickTopLeftX + BRICK_GAP, BrickTopLeftY + BRICK_GAP, BRICK_WIDTH -(BRICK_GAP*2), BRICK_HEIGHT -(BRICK_GAP*2), 'cyan');
+            let BrickTopLeftX = col * BRICK_WIDTH;
+            let BrickTopLeftY = row * BRICK_HEIGHT;
+
+            if(BRICK_GRID[BRICK_COLS * row + col]){ // check if the brick is still there
+                // defined constant BRICK_GAP is used to add a margin around the brick for better visibilty
+                _RectFilled(BrickTopLeftX + BRICK_GAP, BrickTopLeftY + BRICK_GAP, BRICK_WIDTH -(BRICK_GAP*2), BRICK_HEIGHT -(BRICK_GAP*2), 'cyan');
+            }else{} // if the grid value is false brick is not drawn
         } // end of row
     } // end of column
 }
