@@ -7,6 +7,9 @@ let _ballSpeedX, _ballSpeedY;
 
 let _paddleX, _paddleY, _paddleHeight = 15, _paddleWidth = 150;
 
+const BRICK_WIDTH = 80, BRICK_HEIGHT = 20, BRICK_GAP = 3, BRICK_COLS = 10, BRICK_ROWS = 3;
+// collision width&height of the brick, visiual gap, number of columns and rows
+
 window.onload = () => {
     _CANVAS = document.getElementById('gameCanvas');
     _CANVAS_CONTEXT = _CANVAS.getContext('2d');
@@ -105,8 +108,22 @@ _MoveAll = () => {
     _ballY += _ballSpeedY;
 }
 
+_DrawBricks = () => {
+    for(i=0 ; i < BRICK_COLS ; i++) {  // for each column i
+        for(j=0 ; j < BRICK_ROWS ; j++) {  // for each row j in that column i
+            // calculate the coordinates where each brick will be in
+            let BrickTopLeftX = i * BRICK_WIDTH;
+            let BrickTopLeftY = j * BRICK_HEIGHT;
+            // defined constant BRICK_GAP is used to add a margin around the brick for better visibilty
+            _RectFilled(BrickTopLeftX + BRICK_GAP, BrickTopLeftY + BRICK_GAP, BRICK_WIDTH -(BRICK_GAP*2), BRICK_HEIGHT -(BRICK_GAP*2), 'cyan');
+        } // end of row
+    } // end of column
+}
+
 _DrawAll = () => {
     _RectFilled(0, 0, 800, 600, '#000000'); // fills the background with black 800 x 600
+
+    _DrawBricks(); // draws the set of bricks
 
     _RectFilled(_paddleX, _paddleY, _paddleWidth, _paddleHeight, '#FFFFFF');
 
