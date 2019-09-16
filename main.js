@@ -106,6 +106,8 @@ _MoveAll = () => {
 
     _Collision();
 
+    _removeBrickAtPixelCoord(_ballX, _ballY);
+
     _ballX += _ballSpeedX;
     _ballY += _ballSpeedY;
 }
@@ -113,16 +115,35 @@ _MoveAll = () => {
 _ResetBricks = () => {
     for(i=0 ; i < BRICK_COLS ; i++){
         for(j=0 ; j < BRICK_ROWS ; j++){
-            if(Math.random() > 0.5) {
-                BRICK_GRID[BRICK_COLS*j + i] = true;
-            }else {
-                BRICK_GRID[BRICK_COLS*j + i] = false;
-            }
-            //console.log(`${i}, ${j} : ${BRICK_GRID[BRICK_COLS*j + i]}`)
-            //console.log(`BRICK_COLS*j + i = ${BRICK_COLS*j + i}`)
+            BRICK_GRID[BRICK_COLS*j + i] = true;
         }
     };
     //console.dir(BRICK_GRID);
+}
+
+_brickTileToIndex = (brickCol, brickRow) => {
+    return brickCol + BRICK_COLS * brickRow;
+}
+
+_isBrickAtTileCoord = (brickCol, brickRow) => {
+    let brickIndex = _brickTileToIndex(brickCol, brickRow);
+
+    return (BRICK_GRID[brickIndex] == 1);
+}
+
+_removeBrickAtPixelCoord = (pixelX, pixelY) => {
+    let _brickCol = Math.floor(pixelX / BRICK_WIDTH);
+    let _brickRow = Math.floor(pixelY / BRICK_HEIGHT);
+
+    // if statement to check if the col,row is still in range
+    if(_brickCol < 0 || _brickCol >= BRICK_COLS ||
+        _brickRow < 0 || _brickRow >= BRICK_ROWS) {
+            return; // close function to avoid checking out of array range
+        }
+
+    let brickIndex = _brickTileToIndex(_brickCol, _brickRow);
+
+    BRICK_GRID[brickIndex] = 0;
 }
 
 _DrawBricks = () => {
@@ -132,10 +153,13 @@ _DrawBricks = () => {
             let BrickTopLeftX = col * BRICK_WIDTH;
             let BrickTopLeftY = row * BRICK_HEIGHT;
 
-            if(BRICK_GRID[BRICK_COLS * row + col]){ // check if the brick is still there
+            if( _isBrickAtTileCoord(col, row) ){ // check if the brick is still there
                 // defined constant BRICK_GAP is used to add a margin around the brick for better visibilty
                 _RectFilled(BrickTopLeftX + BRICK_GAP, BrickTopLeftY + BRICK_GAP, BRICK_WIDTH -(BRICK_GAP*2), BRICK_HEIGHT -(BRICK_GAP*2), 'cyan');
-            }else{} // if the grid value is false brick is not drawn
+            }else{
+
+                _RectFilled(BrickTopLeftX + BRICK_GAP, BrickTopLeftY + BRICK_GAP, BRICK_WIDTH -(BRICK_GAP*2), BRICK_HEIGHT -(BRICK_GAP*2), 'gray');
+            } // if the grid value is false brick is not drawn
         } // end of row
     } // end of column
 }
