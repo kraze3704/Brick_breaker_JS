@@ -106,10 +106,12 @@ _MoveAll = () => {
 
     _Collision();
 
-    _removeBrickAtPixelCoord(_ballX, _ballY);
+    if(_checkForAndRemoveBrickAtPixelCoord(_ballX, _ballY)){
+        _ballSpeedY *= -1;
+    };
 
-    _ballX += _ballSpeedX;
     _ballY += _ballSpeedY;
+    _ballX += _ballSpeedX;
 }
 
 _ResetBricks = () => {
@@ -131,19 +133,24 @@ _isBrickAtTileCoord = (brickCol, brickRow) => {
     return (BRICK_GRID[brickIndex] == 1);
 }
 
-_removeBrickAtPixelCoord = (pixelX, pixelY) => {
+_checkForAndRemoveBrickAtPixelCoord = (pixelX, pixelY) => {
     let _brickCol = Math.floor(pixelX / BRICK_WIDTH);
     let _brickRow = Math.floor(pixelY / BRICK_HEIGHT);
 
     // if statement to check if the col,row is still in range
     if(_brickCol < 0 || _brickCol >= BRICK_COLS ||
         _brickRow < 0 || _brickRow >= BRICK_ROWS) {
-            return; // close function to avoid checking out of array range
+            return false; // close function to avoid checking out of array range and return false
         }
 
     let brickIndex = _brickTileToIndex(_brickCol, _brickRow);
 
-    BRICK_GRID[brickIndex] = 0;
+    if(BRICK_GRID[brickIndex] == 1) {
+        BRICK_GRID[brickIndex] = 0;
+        return true; // return true if the ball is in contact with a brick
+    }else {
+        return false;
+    }
 }
 
 _DrawBricks = () => {
@@ -156,10 +163,7 @@ _DrawBricks = () => {
             if( _isBrickAtTileCoord(col, row) ){ // check if the brick is still there
                 // defined constant BRICK_GAP is used to add a margin around the brick for better visibilty
                 _RectFilled(BrickTopLeftX + BRICK_GAP, BrickTopLeftY + BRICK_GAP, BRICK_WIDTH -(BRICK_GAP*2), BRICK_HEIGHT -(BRICK_GAP*2), 'cyan');
-            }else{
-
-                _RectFilled(BrickTopLeftX + BRICK_GAP, BrickTopLeftY + BRICK_GAP, BRICK_WIDTH -(BRICK_GAP*2), BRICK_HEIGHT -(BRICK_GAP*2), 'gray');
-            } // if the grid value is false brick is not drawn
+            }else{} // if the grid value is false brick is not drawn
         } // end of row
     } // end of column
 }
