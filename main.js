@@ -7,13 +7,10 @@ let _ballSpeedX, _ballSpeedY;
 
 let _paddleX, _paddleY, _paddleHeight = 15, _paddleWidth = 150;
 
-// const BRICK_WIDTH = 80, BRICK_HEIGHT = 20, BRICK_GAP = 2, BRICK_COLS = 10, BRICK_ROWS = 14;
+const BRICK_WIDTH = 80, BRICK_HEIGHT = 20, BRICK_GAP = 2, BRICK_COLS = 10, BRICK_ROWS = 14;
 // collision width&height of the brick, visiual gap, number of columns and rows
 
-const BRICK_COLS = 4, BRICK_ROWS = 4, BRICK_WIDTH = 200, BRICK_HEIGHT = 100, BRICK_GAP = 2;
-// bigger brick settings to test out ball collision on the sides
-
-let BRICK_GRID = new Array(BRICK_COLS * BRICK_ROWS);
+let BRICK_GRID = new Array(BRICK_COLS * BRICK_ROWS), BRICK_COUNT;
 
 window.onload = () => {
     _CANVAS = document.getElementById('gameCanvas');
@@ -25,9 +22,17 @@ window.onload = () => {
     _paddleX = (_CANVAS.width - _paddleWidth) / 2;
     _paddleY = _CANVAS.height * 0.9;
 
+    /*
     _CANVAS.addEventListener('mousemove', function(evt) {
         let mousePos = calculateMousePos(evt);
         _paddleX = mousePos.x - (_paddleWidth/2);
+    });
+    */
+
+   _CANVAS.addEventListener('mousemove', function(evt) {
+        let mousePos = calculateMousePos(evt);
+        _ballX = mousePos.x;
+        _ballY = mousePos.y;
     });
 
     setInterval(function(){
@@ -112,11 +117,20 @@ _MoveAll = () => {
 
     _breakAndBounceOffBrickAtPixelCoord(_ballX, _ballY);
 
+    if(BRICK_COUNT == 0) { // if there are no more bricks left
+        _ResetBricks();
+    }
+
+    /*
     _ballY += _ballSpeedY;
     _ballX += _ballSpeedX;
+    commented out to test game reset */
 }
 
 _ResetBricks = () => {
+
+    BRICK_COUNT = BRICK_COLS * BRICK_ROWS;  // reset the brick counter
+
     for(i=0 ; i < BRICK_COLS ; i++){
         for(j=0 ; j < BRICK_ROWS ; j++){
             BRICK_GRID[BRICK_COLS*j + i] = true;
@@ -152,18 +166,39 @@ _breakAndBounceOffBrickAtPixelCoord = (pixelX, pixelY) => {
         let _prevBrickCol = Math.floor(_prevBallX / BRICK_WIDTH);
         let _prevBrickRow = Math.floor(_prevBallY / BRICK_HEIGHT);
 
+        let bothTestFailed = true;
+        // flag to determine corner collisions
+
         // case A. ball came in horizontally: value of column is different
         if( _prevBrickCol != _brickCol) {
-            _ballSpeedX *= -1; // flip the horizontal speed of the ball
+            let _adjacentBrickIndex = _brickTileToIndex(_prevBrickCol, _brickRow)
+            // brick index of where the ball would be going towards
+
+            if(BRICK_GRID[_adjacentBrickIndex] != 1) {
+                _ballSpeedX *= -1; // flip the horizontal speed of the ball
+                bothTestFailed = false;
+            }
+
         }
         // case B. ball came in vertically: value of row is different
         if( _prevBrickRow != _brickRow) {
-            _ballSpeedY *= -1; // flip the vertical speed of the ball
+            let _adjacentBrickIndex = _brickTileToIndex(_brickCol, _prevBrickRow)
+
+            if(BRICK_GRID[_adjacentBrickIndex] != 1) {
+                _ballSpeedY *= -1; // flip the vertical speed of the ball
+                bothTestFailed = false;
+            }
         }
+
         // case C. ball hit the corner of the brick: both column and row value are different
-        // in this case both conditions are met, no additional coding needed yet
+        if(bothTestFailed) { // if the ball is going into a corner with both adjacent bricks still there
+            _ballSpeedX *= -1;
+            _ballSpeedY *= -1;
+        }
 
         BRICK_GRID[brickIndex] = 0;
+        BRICK_COUNT--; // decrease the brick count by one
+
         return true; // return true if the ball is in contact with a brick
 
     }else {
