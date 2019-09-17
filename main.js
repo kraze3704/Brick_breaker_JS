@@ -10,7 +10,7 @@ let _paddleX, _paddleY, _paddleHeight = 15, _paddleWidth = 150;
 const BRICK_WIDTH = 80, BRICK_HEIGHT = 20, BRICK_GAP = 2, BRICK_COLS = 10, BRICK_ROWS = 14;
 // collision width&height of the brick, visiual gap, number of columns and rows
 
-let BRICK_GRID = new Array(BRICK_COLS * BRICK_ROWS), BRICK_COUNT;
+let BRICK_GRID = new Array(BRICK_COLS * BRICK_ROWS), BRICK_COUNT = 0;
 
 window.onload = () => {
     _CANVAS = document.getElementById('gameCanvas');
@@ -22,17 +22,9 @@ window.onload = () => {
     _paddleX = (_CANVAS.width - _paddleWidth) / 2;
     _paddleY = _CANVAS.height * 0.9;
 
-    /*
     _CANVAS.addEventListener('mousemove', function(evt) {
         let mousePos = calculateMousePos(evt);
         _paddleX = mousePos.x - (_paddleWidth/2);
-    });
-    */
-
-   _CANVAS.addEventListener('mousemove', function(evt) {
-        let mousePos = calculateMousePos(evt);
-        _ballX = mousePos.x;
-        _ballY = mousePos.y;
     });
 
     setInterval(function(){
@@ -118,22 +110,23 @@ _MoveAll = () => {
     _breakAndBounceOffBrickAtPixelCoord(_ballX, _ballY);
 
     if(BRICK_COUNT == 0) { // if there are no more bricks left
-        _ResetBricks();
+        _resetBall(); // reset ball position and speed
+        _ResetBricks(); // reset all the bricks
     }
 
-    /*
     _ballY += _ballSpeedY;
     _ballX += _ballSpeedX;
-    commented out to test game reset */
 }
 
 _ResetBricks = () => {
 
-    BRICK_COUNT = BRICK_COLS * BRICK_ROWS;  // reset the brick counter
-
     for(i=0 ; i < BRICK_COLS ; i++){
         for(j=0 ; j < BRICK_ROWS ; j++){
-            BRICK_GRID[BRICK_COLS*j + i] = true;
+            if(j < 3) {} // empty first three rows of the bricks
+            else {
+                BRICK_GRID[BRICK_COLS*j + i] = true;
+                BRICK_COUNT++; // add a brick counter for each brick
+            }
         }
     };
     //console.dir(BRICK_GRID);
