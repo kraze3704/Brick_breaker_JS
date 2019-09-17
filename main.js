@@ -7,8 +7,12 @@ let _ballSpeedX, _ballSpeedY;
 
 let _paddleX, _paddleY, _paddleHeight = 15, _paddleWidth = 150;
 
-const BRICK_WIDTH = 80, BRICK_HEIGHT = 20, BRICK_GAP = 2, BRICK_COLS = 10, BRICK_ROWS = 14;
+// const BRICK_WIDTH = 80, BRICK_HEIGHT = 20, BRICK_GAP = 2, BRICK_COLS = 10, BRICK_ROWS = 14;
 // collision width&height of the brick, visiual gap, number of columns and rows
+
+const BRICK_COLS = 4, BRICK_ROWS = 4, BRICK_WIDTH = 200, BRICK_HEIGHT = 100, BRICK_GAP = 2;
+// bigger brick settings to test out ball collision on the sides
+
 let BRICK_GRID = new Array(BRICK_COLS * BRICK_ROWS);
 
 window.onload = () => {
@@ -106,9 +110,7 @@ _MoveAll = () => {
 
     _Collision();
 
-    if(_checkForAndRemoveBrickAtPixelCoord(_ballX, _ballY)){
-        _ballSpeedY *= -1;
-    };
+    _breakAndBounceOffBrickAtPixelCoord(_ballX, _ballY);
 
     _ballY += _ballSpeedY;
     _ballX += _ballSpeedX;
@@ -127,13 +129,11 @@ _brickTileToIndex = (brickCol, brickRow) => {
     return brickCol + BRICK_COLS * brickRow;
 }
 
-_isBrickAtTileCoord = (brickCol, brickRow) => {
-    let brickIndex = _brickTileToIndex(brickCol, brickRow);
-
+_isBrickAtTileCoord = (brickIndex) => {
     return (BRICK_GRID[brickIndex] == 1);
 }
 
-_checkForAndRemoveBrickAtPixelCoord = (pixelX, pixelY) => {
+_breakAndBounceOffBrickAtPixelCoord = (pixelX, pixelY) => {
     let _brickCol = Math.floor(pixelX / BRICK_WIDTH);
     let _brickRow = Math.floor(pixelY / BRICK_HEIGHT);
 
@@ -145,9 +145,27 @@ _checkForAndRemoveBrickAtPixelCoord = (pixelX, pixelY) => {
 
     let brickIndex = _brickTileToIndex(_brickCol, _brickRow);
 
-    if(BRICK_GRID[brickIndex] == 1) {
+    if( _isBrickAtTileCoord(brickIndex) ) {
+        // in contact with a brick, now for case check
+        let _prevBallX = _ballX - _ballSpeedX;
+        let _prevBallY = _ballY - _ballSpeedY;
+        let _prevBrickCol = Math.floor(_prevBallX / BRICK_WIDTH);
+        let _prevBrickRow = Math.floor(_prevBallY / BRICK_HEIGHT);
+
+        // case A. ball came in horizontally: value of column is different
+        if( _prevBrickCol != _brickCol) {
+            _ballSpeedX *= -1; // flip the horizontal speed of the ball
+        }
+        // case B. ball came in vertically: value of row is different
+        if( _prevBrickRow != _brickRow) {
+            _ballSpeedY *= -1; // flip the vertical speed of the ball
+        }
+        // case C. ball hit the corner of the brick: both column and row value are different
+        // in this case both conditions are met, no additional coding needed yet
+
         BRICK_GRID[brickIndex] = 0;
         return true; // return true if the ball is in contact with a brick
+
     }else {
         return false;
     }
@@ -160,7 +178,7 @@ _DrawBricks = () => {
             let BrickTopLeftX = col * BRICK_WIDTH;
             let BrickTopLeftY = row * BRICK_HEIGHT;
 
-            if( _isBrickAtTileCoord(col, row) ){ // check if the brick is still there
+            if( _isBrickAtTileCoord(_brickTileToIndex(col, row) ) ){ // check if the brick is still there
                 // defined constant BRICK_GAP is used to add a margin around the brick for better visibilty
                 _RectFilled(BrickTopLeftX + BRICK_GAP, BrickTopLeftY + BRICK_GAP, BRICK_WIDTH -(BRICK_GAP*2), BRICK_HEIGHT -(BRICK_GAP*2), 'cyan');
             }else{} // if the grid value is false brick is not drawn
